@@ -1,0 +1,54 @@
+table CalenderTable
+	lineageTag: 73dbeff3-c6e9-4336-b632-c0fd15dfa81b
+
+	measure 'YoY Avg Price Growth' = ```
+			[Avg Price Diff] / [PYTD Avg Price] 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: fbe3774e-8e6d-483e-afb0-483964a3a666
+
+	measure 'MTD Avg Price' = TOTALMTD([Avg Price], CalenderTable[Date])
+		lineageTag: 9f04a509-6672-48b9-b218-f7fdc91f342c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Date
+		formatString: General Date
+		lineageTag: bd093f37-7a98-439e-b4e2-c77abeac1bed
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: 6b66da03-0658-45b9-9110-c05a33451617
+			defaultHierarchy: LocalDateTable_7240553e-230e-47c8-a147-7c3514aec75d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Years = YEAR(CalenderTable[Date].[Date])
+		formatString: 0
+		lineageTag: a6da3bd8-eead-4820-828b-e058ff2f1324
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Months = FORMAT(CalenderTable[Date],"MMMM" )
+		lineageTag: 29791a62-a9fe-4ebf-809c-432ee484094f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weeks = WEEKNUM(CalenderTable[Date])
+		formatString: 0
+		lineageTag: b5a26933-f6b5-42ce-8c5c-a95b27e2288a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CalenderTable = calculated
+		mode: import
+		source = CALENDAR (MIN(car_data[Date]) , max(car_data[Date]))
+
+	annotation PBI_Id = a76b45abdd674c468dbb2f34115fc50d
+

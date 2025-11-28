@@ -1,0 +1,9 @@
+relationship 6b66da03-0658-45b9-9110-c05a33451617
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CalenderTable.Date
+	toColumn: LocalDateTable_7240553e-230e-47c8-a147-7c3514aec75d.Date
+
+relationship 3c246154-fb8a-022f-d378-dd3c9ce0cc0a
+	fromColumn: car_data.Date
+	toColumn: CalenderTable.Date
+

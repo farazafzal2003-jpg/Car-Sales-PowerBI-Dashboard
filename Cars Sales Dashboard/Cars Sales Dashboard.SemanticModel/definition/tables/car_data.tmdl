@@ -1,0 +1,249 @@
+table car_data
+	lineageTag: f8c90030-1d31-4b4b-89d4-9f20d05347ce
+
+	measure 'YTD Total Sale' = TOTALYTD(SUM(car_data[Price ($)]),CalenderTable[Date])
+		formatString: \$#,0.0;(\$#,0.0);\$#,0.0
+		lineageTag: 21efbaf6-a2a3-45b6-97e0-a4fdc80942d9
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'PYTD Total Sales' = CALCULATE(SUM(car_data[Price ($)]),SAMEPERIODLASTYEAR(CalenderTable[Date])  )
+		formatString: 0
+		lineageTag: 8b96c622-2182-47c7-bea2-58c6cdd5d055
+
+	measure 'Sales Difference' = ```
+			[YTD Total Sale]-[PYTD Total Sales] 
+			```
+		formatString: \$#,0.0;(\$#,0.0);\$#,0.0
+		lineageTag: 066f6a89-f381-498b-90af-aca243666a82
+
+	measure 'Sales Diff Colour' = IF([Sales Difference]>0, "Green", "Red")
+		lineageTag: 467e33c9-2121-4a46-a446-03eb40451ba2
+
+	measure 'YoY Sales Growth' = ```
+			[Sales Difference]/[PYTD Total Sales] 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d50d9347-01ad-479d-91e5-d0776f7da24c
+
+	measure 'MTD Total Sales' = TOTALMTD(SUM(car_data[Price ($)]), CalenderTable[Date])
+		formatString: 0
+		lineageTag: dae7d741-2318-4e68-be6e-1f895dc6b35d
+
+	measure 'MTD KPI' = CONCATENATE("MTD Total Sales : ", FORMAT([MTD Total Sales]/ 1000000,"$0.00M"))
+		lineageTag: e2b43a33-fe5a-4616-9d69-bccc198a7e5e
+
+	measure 'Avg Price' = ```
+			SUM(car_data[Price ($)]) / COUNT(car_data[Car_id]) 
+			```
+		lineageTag: 97ced217-8e73-4497-8126-cfa1023b0249
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'YTD Avg Price' = ```
+			TOTALYTD([Avg Price], CalenderTable[Date]) 
+			```
+		formatString: \$#,0.0;(\$#,0.0);\$#,0.0
+		lineageTag: 46f74095-24ca-4d1b-97c1-409d78eed570
+
+	measure 'PYTD Avg Price' = CALCULATE([Avg Price], SAMEPERIODLASTYEAR(CalenderTable[Date]) )
+		lineageTag: 255e14b5-feb0-406e-b381-cee8efb5643b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Price Diff' = [YTD Avg Price]- [PYTD Avg Price]
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 6624f6f9-e055-434d-8de5-e9e9ba9188b0
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Avg Price Colour' = ```
+			If([Avg Price Diff]>0,"Green", "Red") 
+			```
+		lineageTag: c7c259dc-b324-420c-814b-f1153f9f32e2
+
+	measure 'MTD Avg Price API' = CONCATENATE("MTD Avg Price : ", FORMAT([MTD Avg Price]/ 1000,"$0.00K"))
+		lineageTag: 48ec46e2-b13f-47ab-b1d5-2365de5ba4c3
+
+	measure 'YTD Car Sold' = ```
+			TOTALYTD(count(car_data[Car_id]),CalenderTable[Date]) 
+			```
+		formatString: \$#,0.0;(\$#,0.0);\$#,0.0
+		lineageTag: 47941954-40f8-4e46-be9d-b9a5979dd066
+
+	measure 'PYTD Car Sold' = CALCULATE(COUNT(car_data[Car_id]), SAMEPERIODLASTYEAR(CalenderTable[Date]) )
+		formatString: 0
+		lineageTag: 76f13fdf-c46c-455e-bbef-923fb10263e8
+
+	measure 'Car Sold Diff' = ```
+			[YTD Car Sold]-[PYTD Car Sold] 
+			```
+		formatString: 0.00
+		lineageTag: fbf4cd71-1bb1-44eb-964a-90b428551856
+
+	measure 'Car sold Color' = IF(car_data[Car Sold Diff]>0,"Green", "Red")
+		lineageTag: 4240d501-835a-47ee-aa96-b12a0e86a7d3
+
+	measure 'YoY Car Sold Growth' = [Car Sold Diff] / [YTD Car Sold]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 65bc9b97-3857-4a65-8cf8-77bfab3ee44a
+
+	measure 'MTD Cars Sold' = ```
+			TOTALMTD(COUNT(car_data[Car_id]),CalenderTable[Date]) 
+			```
+		formatString: 0
+		lineageTag: a2476f99-0569-43d2-a653-53b3d44114c8
+
+	measure 'MTD Cars Sold KPI' = CONCATENATE("MTD Car Sold : ", FORMAT([MTD Cars Sold]/ 1000,"$0.00K"))
+		lineageTag: 3e45cd25-5e06-4739-b689-509482a143d1
+
+	column Car_id
+		dataType: string
+		lineageTag: 2e89ccc5-ab9d-4df6-ba15-9404f8224d0b
+		summarizeBy: none
+		sourceColumn: Car_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2804bc83-e17c-4063-a935-e7ba98c9d3cf
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Customer Name'
+		dataType: string
+		lineageTag: 42074363-ba2f-4394-9663-20d85095e54a
+		summarizeBy: none
+		sourceColumn: Customer Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Gender
+		dataType: string
+		lineageTag: 5bca5b78-7d0e-4288-ac66-f89319526dac
+		summarizeBy: none
+		sourceColumn: Gender
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Annual Income'
+		dataType: int64
+		formatString: 0
+		lineageTag: cf674364-1afa-4e5b-aaa0-821c8900bbed
+		summarizeBy: sum
+		sourceColumn: Annual Income
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dealer_Name
+		dataType: string
+		lineageTag: f35cbed6-3064-4f45-952d-702ba5461e88
+		summarizeBy: none
+		sourceColumn: Dealer_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Company
+		dataType: string
+		lineageTag: 8dfb2f76-a5b6-40c1-9070-707fb73b250f
+		summarizeBy: none
+		sourceColumn: Company
+
+		annotation SummarizationSetBy = Automatic
+
+	column Model
+		dataType: string
+		lineageTag: f1060719-6828-4e82-8d24-995df0b79401
+		summarizeBy: none
+		sourceColumn: Model
+
+		annotation SummarizationSetBy = Automatic
+
+	column Engine
+		dataType: string
+		lineageTag: d21a6598-1932-40e7-963d-c0c429c45936
+		summarizeBy: none
+		sourceColumn: Engine
+
+		annotation SummarizationSetBy = Automatic
+
+	column Transmission
+		dataType: string
+		lineageTag: 14cda5c6-9ffe-4ff1-ac71-ec0d72f6a15c
+		summarizeBy: none
+		sourceColumn: Transmission
+
+		annotation SummarizationSetBy = Automatic
+
+	column Color
+		dataType: string
+		lineageTag: a5f044d4-c6e4-4fa2-b722-378e8d76a018
+		summarizeBy: none
+		sourceColumn: Color
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Price ($)'
+		dataType: int64
+		formatString: 0
+		lineageTag: f60070c4-876e-4ff4-9398-229d94e9b0ca
+		summarizeBy: sum
+		sourceColumn: Price ($)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dealer_No '
+		dataType: string
+		lineageTag: e9213204-3a8f-42b5-bcc2-ed4900e90aaf
+		summarizeBy: none
+		sourceColumn: "Dealer_No "
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Body Style'
+		dataType: string
+		lineageTag: 54438806-4729-411d-8208-3579300b6a73
+		summarizeBy: none
+		sourceColumn: Body Style
+
+		annotation SummarizationSetBy = Automatic
+
+	column Phone
+		dataType: int64
+		formatString: 0
+		lineageTag: c023770c-3a8d-4dbb-9f51-9c8f89dd6771
+		summarizeBy: sum
+		sourceColumn: Phone
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dealer_Region
+		dataType: string
+		lineageTag: 8f92bb57-7448-418c-9bfc-a07d7982d361
+		summarizeBy: none
+		sourceColumn: Dealer_Region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition car_data = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\akhan\Downloads\Car Sales.xlsx"), null, true),
+				    car_data_Sheet = Source{[Item="car_data",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(car_data_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Car_id", type text}, {"Date", type date}, {"Customer Name", type text}, {"Gender", type text}, {"Annual Income", Int64.Type}, {"Dealer_Name", type text}, {"Company", type text}, {"Model", type any}, {"Engine", type text}, {"Transmission", type text}, {"Color", type text}, {"Price ($)", Int64.Type}, {"Dealer_No ", type text}, {"Body Style", type text}, {"Phone", Int64.Type}, {"Dealer_Region", type text}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type","DoubleÂ Overhead Camshaft","Double Overhead Camshaft",Replacer.ReplaceText,{"Engine"})
+				in
+				    #"Replaced Value"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
